@@ -1,0 +1,4 @@
+{
+    "base": "src/",
+    "output": "dist/index.ts"
+}
