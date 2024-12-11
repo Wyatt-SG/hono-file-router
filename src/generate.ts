@@ -10,8 +10,8 @@ import config from "../config.json" assert { type: "json" };
  */
 async function findRouteHandlers(
   targetDir: string
-): Promise<Record<string, any>> {
-  const result: Record<string, any> = {};
+): Promise<Record<string, string>> {
+  const result: Record<string, string> = {};
 
   /**
    * Recursively traverse the directory and find files named "route.ts".
@@ -28,18 +28,10 @@ async function findRouteHandlers(
       } else if (entry.isFile() && entry.name === "route.ts") {
         const relativePath = path.relative(targetDir, path.dirname(entryPath));
         const routePath = `/${relativePath.replace(/\\|\//g, "/")}`;
-
-        try {
-          const routeModule = await import(path.resolve(entryPath));
-          if (
-            routeModule.default &&
-            typeof routeModule.default === "function"
-          ) {
-            result[routePath] = routeModule.default;
-          }
-        } catch (error) {
-          console.error(`Failed to import ${entryPath}:`, error);
-        }
+        const importPath = path
+          .relative(path.dirname(config.output), entryPath)
+          .replace(/\\|\//g, "/");
+        result[routePath] = `./${importPath}`;
       }
     }
   }
@@ -49,7 +41,7 @@ async function findRouteHandlers(
 }
 
 async function generateHonoApp(
-  routes: Record<string, any>,
+  routes: Record<string, string>,
   outputFile: string
 ) {
   const outputDir = path.dirname(outputFile);
@@ -59,11 +51,24 @@ async function generateHonoApp(
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
-  let content = "import { Hono } from 'hono';\n\n";
+  let content = "import { Hono } from 'hono';\n";
   content += "const app = new Hono();\n\n";
 
-  for (const [route, handler] of Object.entries(routes)) {
-    content += `app.all('${route}', ${handler});\n`;
+  const importNames = new Set<string>();
+
+  for (const [route, modulePath] of Object.entries(routes)) {
+    let importName = path
+      .basename(modulePath, ".ts")
+      .replace(/[^a-zA-Z0-9]/g, "_");
+
+    // Ensure unique import names
+    while (importNames.has(importName)) {
+      importName += "_";
+    }
+    importNames.add(importName);
+
+    content += `import ${importName} from '${modulePath}';\n`;
+    content += `app.all('${route}', ${importName});\n`;
   }
 
   content += "\nexport default app;\n";

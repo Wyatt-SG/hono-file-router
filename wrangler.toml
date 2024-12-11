@@ -1,4 +1,4 @@
-name = "my-cool-app"
+name = "hono-file-router"
 main = "dist/index.ts"
 compatibility_date = "2024-04-01"
 
