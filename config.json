@@ -1,4 +1,4 @@
 {
-    "base": "src/",
+    "base": "src/app/",
     "output": "dist/index.ts"
 }

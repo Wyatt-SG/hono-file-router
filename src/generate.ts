@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import config from "./config.json" assert { type: "json" };
+import config from "../config.json" assert { type: "json" };
 
 /**
  * Recursively finds all files named "route.ts" in the target directory and its subdirectories.
@@ -72,7 +72,6 @@ async function generateHonoApp(
   console.log(`Generated Hono app in ${outputFile}`);
 }
 
-// Example usage:
 (async () => {
   const { base, output } = config;
   const routeHandlers = await findRouteHandlers(base);

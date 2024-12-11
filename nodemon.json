@@ -3,5 +3,5 @@
     "src/**/*.ts"
   ],
   "ext": "ts",
-  "exec": "ts-node --esm generate.ts"
+  "exec": "ts-node --esm src/generate.ts"
 }

@@ -3,8 +3,6 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "ts-node --esm generate.ts",
-    "dev:1": "nodemon",
     "dev": "concurrently \"nodemon\" \"wrangler dev\""
   },
   "devDependencies": {
